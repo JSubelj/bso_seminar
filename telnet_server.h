@@ -6,6 +6,8 @@
 #include <string.h>
 
 #include <espressif/esp_common.h>
+#include <espressif/user_interface.h>
+
 #include <esp/uart.h>
 #include <FreeRTOS.h>
 #include <task.h>

@@ -9,8 +9,8 @@ void telnet_connection(void *pvParameters) {
     struct netbuf *pxRxBuffer;
     portCHAR *pcRxString;
     unsigned portSHORT usLength;
-    char buff[64] ={0};
-    char ret_buff[64] = {0};
+    char buff[COMMAND_MAX_STRING_LEN] = {0};
+    char ret_buff[FULL_STRING_SIZE] = {0};
     struct whole_config conf;
     get_config_from_flash(&conf);
 
@@ -30,6 +30,17 @@ void telnet_connection(void *pvParameters) {
 
                             memset(ret_buff, 0, sizeof(ret_buff));
                             act_on_command(buff,&conf,ret_buff);
+                            if(strcmp("Bye,bye.\n\n",ret_buff)==0 || strcmp("Shutting down.\n\n",ret_buff)==0){
+                                netconn_write( pxNetCon, ret_buff, strlen(ret_buff), NETCONN_COPY );
+                                no_of_connections--;
+                                netconn_delete(pxNetCon);
+                                if(strcmp("Shutting down.\n\n",ret_buff)==0){
+                                    delay_ms(1000);
+                                    sdk_system_restart();
+                                    while (1);
+                                }
+                                vTaskDelete(NULL);
+                            }
                             netconn_write( pxNetCon, ret_buff, strlen(ret_buff), NETCONN_COPY );
                             sprintf(ret_buff, "> ");
                             netconn_write( pxNetCon, ret_buff, strlen(ret_buff), NETCONN_COPY );
@@ -81,6 +92,7 @@ char what_command(char* command){
     else if(strncmp(command,EXIT_COMMAND,EXIT_COMMAND_LEN)==0) return EXIT_COMMAND_NO;
     else if(strncmp(command,DISPLAY_CURRENT_COMMAND,DISPLAY_CURRENT_COMMAND_LEN)==0) return DISPLAY_CURRENT_COMMAND_NO;
     else if(strncmp(command,DISPLAY_SAVED_COMMAND,DISPLAY_SAVED_COMMAND_LEN)==0) return DISPLAY_SAVED_COMMAND_NO;
+    else if(strncmp(command,RESTART_COMMAND,RESTART_COMMAND_LEN)==0) return RESTART_COMMAND_NO;
 
     return INCORRECT_COMMAND_NO;                      
 }
@@ -106,13 +118,73 @@ void act_on_command(char* org_command, struct whole_config * conf, char * ret){
     switch(command){
         //case INCORRECT_COMMAND_NO: {strcpy(ret, "Invalid command. Try help.\n"); break;}
         case IP_SET_COMMAND_NO: {
-            string2ip((org_command+strlen(IP_SET_COMMAND)+1),&(conf->ip[0]));
+            string2ip((org_command+IP_SET_COMMAND_LEN+1),&(conf->ip[0]));
             sprintf(ret, "IP set to: %d.%d.%d.%d\n", conf->ip[0],conf->ip[1],conf->ip[2],conf->ip[3]);            
             break;
         } 
+        case GW_SET_COMMAND_NO: {
+            string2ip((org_command+GW_SET_COMMAND_LEN+1),&(conf->gw[0]));
+            sprintf(ret, "GW set to: %d.%d.%d.%d\n",conf->gw[0],conf->gw[1],conf->gw[2],conf->gw[3]);
+            break;            
+        }
+        case NETMASK_SET_COMMAND_NO: {
+            string2ip((org_command+NETMASK_SET_COMMAND_LEN+1),&(conf->netmask[0]));
+            sprintf(ret, "Netmask set to: %d.%d.%d.%d\n",conf->netmask[0],conf->netmask[1],conf->netmask[2],conf->netmask[3]);
+            break;
+        }
+        case SSID_SET_COMMAND_NO: {
+            memset(&(conf->ssid[0]),0,sizeof(conf->ssid));
+            strncpy(&(conf->ssid[0]), (org_command+SSID_SET_COMMAND_LEN+1),strlen((org_command+SSID_SET_COMMAND_LEN+1))-1);
+            sprintf(ret, "SSID set to: %s\n",conf->ssid);
+            break;
+        }
+        case PASS_SET_COMMAND_NO: {
+            memset(&(conf->pass[0]),0,sizeof(conf->pass));
+
+            strncpy(&(conf->pass[0]), (org_command+PASS_SET_COMMAND_LEN+1),strlen((org_command+PASS_SET_COMMAND_LEN+1))-1);
+            sprintf(ret, "Password set to: %s\n",conf->pass);
+            break;
+        }
+        case STATIC_IP_SET_COMMAND_NO: {
+            conf->dhcp_static = STATIC_IP_FLAG;
+            sprintf(ret, "IP set to static.\n");
+            break;
+        }
+        case DYNAMIC_IP_SET_COMMAND_NO: {
+            conf->dhcp_static = DYNAMIC_IP_FLAG;
+            sprintf(ret, "IP set to dynamic.\n");
+            break;
+        }
+        case SAVE_COMMAND_NO: {
+            write_config_to_flash(conf);
+            struct whole_config tmp;
+            get_config_from_flash(&tmp);
+            get_full_conf_string(&tmp, ret);
+            break;
+        }
+        case EXIT_COMMAND_NO: {
+            sprintf(ret,"Bye,bye.\n\n");
+            break;
+        }
+
+        case DISPLAY_CURRENT_COMMAND_NO: {
+            //char string[FULL_STRING_SIZE];
+            get_full_conf_string(conf, ret);
+            break;
+        }
+        case DISPLAY_SAVED_COMMAND_NO:{
+            struct whole_config tmp;
+            get_config_from_flash(&tmp);
+            get_full_conf_string(&tmp, ret);
+            break;
+        }
+        case RESTART_COMMAND_NO:{
+            sprintf(ret,"Shutting down.\n\n");
+            break;
+        }
 
         default: {
-            strcpy(ret, "cmnds: \nip [ip]\ngw [ip]\nnetmask [ip]\nssid [name]\npass [pass]\nstatic \ndynamic\nsave\nhelp\ndisplay_current\ndisplay_saved\nexit \n"); 
+            strcpy(ret, "cmnds: \nip [ip]\ngw [ip]\nnetmask [ip]\nssid [name]\npass [pass]\nstatic \ndynamic\nsave\nhelp\ndisplay_current\ndisplay_saved\nexit\ndisplay_current\ndisplay_saved\nrestart \n"); 
             break;
             }
     }

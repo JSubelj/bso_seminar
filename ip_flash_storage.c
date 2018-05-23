@@ -90,7 +90,7 @@ void write_config_to_flash(struct whole_config * conf){
     write_to_flash(buff, FULL_SIZE);//
 }
 
-extern void get_full_conf_string(struct whole_config * conf, char* string){
+void get_full_conf_string(struct whole_config * conf, char* string){
     sprintf(string,
             "dynamic/static: %d\nIP addr: %d.%d.%d.%d\nnetmask: %d.%d.%d.%d\ngw: %d.%d.%d.%d\nssid: %s\npass: %s\n",
             conf->dhcp_static, conf->ip[0],conf->ip[1],conf->ip[2],conf->ip[3],conf->netmask[0],conf->netmask[1],conf->netmask[2],conf->netmask[3],conf->gw[0],conf->gw[1],conf->gw[2],conf->gw[3],conf->ssid,conf->pass

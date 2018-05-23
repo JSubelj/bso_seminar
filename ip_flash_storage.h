@@ -10,6 +10,9 @@
 #define DHCP_STATIC_SIZE 1
 #define UNALLOCATED_SIZE 3
 #define FULL_SIZE 3*IP_SIZE+PASS_SIZE+SSID_SIZE+DHCP_STATIC_SIZE+UNALLOCATED_SIZE
+#define FULL_STRING_SIZE 230
+#define STATIC_IP_FLAG 1
+#define DYNAMIC_IP_FLAG 0
 
 // na konc bojo bli ip pa ssid pa pass sharnjeni
 
