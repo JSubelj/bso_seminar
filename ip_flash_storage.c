@@ -22,9 +22,9 @@ void update_ip_config(struct whole_config * conf_ip){
     struct whole_config conf;
     get_config_from_flash(&conf);
 
-    strncpy(&conf.ip[0],&(conf_ip->ip[0]),IP_SIZE);
-    strncpy(&conf.gw[0],&(conf_ip->gw[0]),IP_SIZE);
-    strncpy(&conf.netmask[0],&(conf_ip->netmask[0]),IP_SIZE);
+    memcpy(&conf.ip[0],&(conf_ip->ip[0]),IP_SIZE);
+    memcpy(&conf.gw[0],&(conf_ip->gw[0]),IP_SIZE);
+    memcpy(&conf.netmask[0],&(conf_ip->netmask[0]),IP_SIZE);
     
     write_config_to_flash(&conf);
 }
@@ -40,19 +40,19 @@ void update_wifi_config(struct whole_config * conf_wifi){
     
 }
 
-void get_config_from_flash(struct whole_config * conf){
+char get_config_from_flash(struct whole_config * conf){
     char buff[FULL_SIZE];
     read_flash(buff, FULL_SIZE);
 
     int counter=0;
     
-    strncpy(&(conf->ip[0]), (buff+counter),IP_SIZE);
+    memcpy(&(conf->ip[0]),(buff+counter),IP_SIZE);
     counter+=IP_SIZE;
 
-    strncpy(&(conf->netmask[0]), (buff+counter),IP_SIZE);
+    memcpy(&(conf->netmask[0]), (buff+counter),IP_SIZE);
     counter+=IP_SIZE;    
 
-    strncpy(&(conf->gw[0]), (buff+counter),IP_SIZE);
+    memcpy(&(conf->gw[0]), (buff+counter),IP_SIZE);
     counter+=IP_SIZE;
 
     strncpy(&(conf->ssid[0]), (buff+counter),SSID_SIZE);
@@ -61,24 +61,35 @@ void get_config_from_flash(struct whole_config * conf){
     strncpy(&(conf->pass[0]), (buff+counter),PASS_SIZE);
     counter+=SSID_SIZE;
 
-    strncpy(&(conf->dhcp_static), (buff+counter),DHCP_STATIC_SIZE);
+    memcpy(&(conf->dhcp_static), (buff+counter),DHCP_STATIC_SIZE);
     counter+=DHCP_STATIC_SIZE;
+
+    memcpy(&(conf->does_config_exist[0]), (buff+counter),DOES_CONFIG_EXIST_SIZE);
+    counter+=DOES_CONFIG_EXIST_SIZE;
+
+    for(char i=0;i<DOES_CONFIG_EXIST_SIZE;i++){
+        if(conf->does_config_exist[(int)i] != 0xaa){
+            return ERR_CONF_DOSENT_EXIST;
+        }
+    }
+
+    return NO_ERROR;
 }
 
 void write_config_to_flash(struct whole_config * conf){
     char buff[FULL_SIZE];
-    
+
     int counter = 0;
-    strncpy((buff+counter),&(conf->ip[0]),IP_SIZE);
+    memcpy((buff+counter),&(conf->ip[0]),IP_SIZE);
     counter+=IP_SIZE;
 
-    strncpy((buff+counter),&(conf->netmask[0]),IP_SIZE);
+    memcpy((buff+counter),&(conf->netmask[0]),IP_SIZE);
     counter+=IP_SIZE;    
 
-    strncpy((buff+counter),&(conf->gw[0]),IP_SIZE);
+    memcpy((buff+counter),&(conf->gw[0]),IP_SIZE);
     counter+=IP_SIZE;
 
-    strncpy((buff+counter),&(conf->ssid[0]),SSID_SIZE);
+    memcpy((buff+counter),&(conf->ssid[0]),SSID_SIZE);
     counter+=SSID_SIZE;
 
     strncpy((buff+counter),&(conf->pass[0]),PASS_SIZE);
@@ -87,7 +98,11 @@ void write_config_to_flash(struct whole_config * conf){
     strncpy((buff+counter),&(conf->dhcp_static),DHCP_STATIC_SIZE);
     counter+=DHCP_STATIC_SIZE;
 
-    write_to_flash(buff, FULL_SIZE);//
+    for(char i=1;i<=DOES_CONFIG_EXIST_SIZE;i++){
+        buff[(int)FULL_SIZE-i] = 0xaa;
+    }
+
+    write_to_flash(buff, FULL_SIZE);
 }
 
 void get_full_conf_string(struct whole_config * conf, char* string){

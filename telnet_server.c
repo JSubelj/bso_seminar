@@ -174,8 +174,13 @@ void act_on_command(char* org_command, struct whole_config * conf, char * ret){
         }
         case DISPLAY_SAVED_COMMAND_NO:{
             struct whole_config tmp;
-            get_config_from_flash(&tmp);
+            char err = get_config_from_flash(&tmp);
+            if(err == ERR_CONF_DOSENT_EXIST){
+                sprintf(ret, "Config does not exist in flash.\n");
+                break;
+            }
             get_full_conf_string(&tmp, ret);
+            
             break;
         }
         case RESTART_COMMAND_NO:{

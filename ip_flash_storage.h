@@ -8,11 +8,14 @@
 #define SSID_SIZE 64
 #define IP_SIZE 4
 #define DHCP_STATIC_SIZE 1
-#define UNALLOCATED_SIZE 3
-#define FULL_SIZE 3*IP_SIZE+PASS_SIZE+SSID_SIZE+DHCP_STATIC_SIZE+UNALLOCATED_SIZE
+#define DOES_CONFIG_EXIST_SIZE 3
+#define FULL_SIZE 3*IP_SIZE+PASS_SIZE+SSID_SIZE+DHCP_STATIC_SIZE+DOES_CONFIG_EXIST_SIZE
 #define FULL_STRING_SIZE 230
-#define STATIC_IP_FLAG 1
+#define STATIC_IP_FLAG 0xff
 #define DYNAMIC_IP_FLAG 0
+
+#define NO_ERROR 0
+#define ERR_CONF_DOSENT_EXIST 1
 
 // na konc bojo bli ip pa ssid pa pass sharnjeni
 
@@ -23,7 +26,7 @@
 // 12-[75]SSID_SIZE+11 - SSID
 // [76]SSID_SIZE+12-[139]SSID_SIZE+PASS_SIZE+11 - PASS
 // [140]SSID_SIZE+PASS_SIZE+12 - DHCP(0)/STATIC(1)
-// [141]SSID_SIZE+PASS_SIZE+13-[143]SSID_SIZE+PASS_SIZE+13 - unallocated
+// [141]SSID_SIZE+PASS_SIZE+13-[143]SSID_SIZE+PASS_SIZE+13 - does_config_exist
 
 // SUM: 144
 
@@ -34,11 +37,11 @@ struct whole_config {
     char ssid[SSID_SIZE];
     char pass[PASS_SIZE];
     char dhcp_static;
-    char unallocated[UNALLOCATED_SIZE];
+    char does_config_exist[DOES_CONFIG_EXIST_SIZE];
 };
 
 
-extern void get_config_from_flash(struct whole_config * conf);
+extern char get_config_from_flash(struct whole_config * conf);
 extern void write_config_to_flash(struct whole_config * conf);
 extern void update_ip_config(struct whole_config * conf_ip);
 extern void update_wifi_config(struct whole_config * conf_wifi);
