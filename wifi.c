@@ -1,5 +1,9 @@
 #include "wifi.h"
 
+
+// TODO: Če ne obstaja configuracija v flashu potem pejt v AP mode
+// TODO: Če je AP mode flag nastavlen pejt v AP mode
+
 void wifi_config(){
     struct ip_info ipconfig;
     /*struct whole_config full_config={

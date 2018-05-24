@@ -1,5 +1,6 @@
 #include "ip_flash_storage.h"
 
+// TODO: dodej AP mode flag in funkcije ki ga naslavlajo
 
 void set_dhcp_static_flag(char flag){
     struct whole_config conf;
@@ -64,6 +65,9 @@ char get_config_from_flash(struct whole_config * conf){
     memcpy(&(conf->dhcp_static), (buff+counter),DHCP_STATIC_SIZE);
     counter+=DHCP_STATIC_SIZE;
 
+    memcpy(&(conf->ap_mode), (buff+counter),AP_MODE_SIZE);
+    counter+=AP_MODE_SIZE;
+
     memcpy(&(conf->does_config_exist[0]), (buff+counter),DOES_CONFIG_EXIST_SIZE);
     counter+=DOES_CONFIG_EXIST_SIZE;
 
@@ -98,6 +102,10 @@ void write_config_to_flash(struct whole_config * conf){
     strncpy((buff+counter),&(conf->dhcp_static),DHCP_STATIC_SIZE);
     counter+=DHCP_STATIC_SIZE;
 
+    memcpy((buff+counter),&(conf->ap_mode),AP_MODE_SIZE);
+    counter+=AP_MODE_SIZE;
+
+
     for(char i=1;i<=DOES_CONFIG_EXIST_SIZE;i++){
         buff[(int)FULL_SIZE-i] = 0xaa;
     }
@@ -107,7 +115,6 @@ void write_config_to_flash(struct whole_config * conf){
 
 void get_full_conf_string(struct whole_config * conf, char* string){
     sprintf(string,
-            "dynamic/static: %d\nIP addr: %d.%d.%d.%d\nnetmask: %d.%d.%d.%d\ngw: %d.%d.%d.%d\nssid: %s\npass: %s\n",
-            conf->dhcp_static, conf->ip[0],conf->ip[1],conf->ip[2],conf->ip[3],conf->netmask[0],conf->netmask[1],conf->netmask[2],conf->netmask[3],conf->gw[0],conf->gw[1],conf->gw[2],conf->gw[3],conf->ssid,conf->pass
-    );
+            "dynamic/static: %d\nIP addr: %d.%d.%d.%d\nnetmask: %d.%d.%d.%d\ngw: %d.%d.%d.%d\nssid: %s\npass: %s\nAP_MODE: %d\n",
+            conf->dhcp_static, conf->ip[0],conf->ip[1],conf->ip[2],conf->ip[3],conf->netmask[0],conf->netmask[1],conf->netmask[2],conf->netmask[3],conf->gw[0],conf->gw[1],conf->gw[2],conf->gw[3],conf->ssid,conf->pass,conf->ap_mode);
 }
