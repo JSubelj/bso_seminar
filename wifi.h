@@ -8,6 +8,7 @@
 
 #include "private_ssid_config.h"
 #include "ip_flash_storage.h"
+#include "leds.h"
 
 #define AP_SSID "ESP_BSO_WIFI"
 #define AP_PASS "testtest1"
@@ -18,10 +19,16 @@
 #define AP_BEACON_INTERVAL 100
 #define AP_HIDDEN 0
 
-extern void wifi_config();
+#define AP_WIFI_FLAG 1
+#define DYNAMIC_WIFI_FLAG 2
+#define STATIC_WIFI_FLAG 3
+
+extern char wifi_config();
 extern void soft_ap_config();
-extern void client_mode();
+extern char client_mode();
 extern void client_mode_static();
 extern void client_mode_dynamic();
+extern void checking_connection(void *pvParameters);
+
 
 #endif

@@ -1,7 +1,5 @@
 #include "ip_flash_storage.h"
 
-// TODO: dodej AP mode flag in funkcije ki ga naslavlajo
-
 void set_dhcp_static_flag(char flag){
     struct whole_config conf;
     get_config_from_flash(&conf);
@@ -16,12 +14,16 @@ char set_AP_mode(char mode){
     struct whole_config conf;
     char err = get_config_from_flash(&conf);  
     if(err == ERR_CONF_DOSENT_EXIST){
+        if(mode == AP_MODE_ON_FLAG) {
+            return NO_ERROR;
+        }
         return ERR_CONF_DOSENT_EXIST;
-    }  
-    if(mode == AP_MODE_ON_FLAG || mode == AP_MODE_OFF_FLAG){
-        conf.ap_mode = mode;
-        write_config_to_flash(&conf);
-        return NO_ERROR;
+    } else{ 
+        if(mode == AP_MODE_ON_FLAG || mode == AP_MODE_OFF_FLAG){
+            conf.ap_mode = mode;
+            write_config_to_flash(&conf);
+            return NO_ERROR;
+        }
     }
     return ERR_AP_MODE;
     

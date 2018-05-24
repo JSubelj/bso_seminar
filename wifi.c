@@ -1,27 +1,22 @@
 #include "wifi.h"
 
-
-// TODO: Če ne obstaja configuracija v flashu potem pejt v AP mode
-// TODO: Če je AP mode flag nastavlen pejt v AP mode
-
-void wifi_config(){
+char wifi_config(){
     
     if(is_AP_mode()){
-        printf("AP");
         soft_ap_config();
+        return AP_WIFI_FLAG;
     }else{
-        printf("TUKI");
-        client_mode();
-    }
-
-    
+        return client_mode();
+    }    
 }
 
-void client_mode(){
+char client_mode(){
     if(is_ip_static()){
         client_mode_static();
+        return STATIC_WIFI_FLAG;
     }else{
         client_mode_dynamic();
+        return DYNAMIC_WIFI_FLAG;
     }
 }
 
@@ -104,4 +99,32 @@ void soft_ap_config(){
     ip_addr_t first_client_ip;
     IP4_ADDR(&first_client_ip, 172, 16, 0, 2);
     dhcpserver_start(&first_client_ip, 4);
+}
+
+void checking_connection(void *pvParameters){
+    printf("PRŠU NOT");
+    if(sdk_wifi_get_opmode() == SOFTAP_IF){
+        printf("PRŠU NOT");
+        
+        remove_leds(NO_INTERNET);  
+        append_leds(AP_ON_LED);  
+        delay_ms(10);
+    	vTaskDelete(NULL);    
+    }
+    printf("TUKI");
+
+
+    uint8_t status = sdk_wifi_station_get_connect_status();
+    while(status != STATION_GOT_IP){
+        status = sdk_wifi_station_get_connect_status();
+        delay_ms(10);
+    }
+    remove_leds(NO_INTERNET);  
+    if(sdk_wifi_station_dhcpc_status() == DHCP_STOPPED){
+        append_leds(STATIC_ON_LED);
+    }else{
+        append_leds(DYNAMIC_ON_LED);
+    }
+    delay_ms(10);   
+    vTaskDelete(NULL);    
 }
