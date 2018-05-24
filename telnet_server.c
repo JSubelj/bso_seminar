@@ -113,6 +113,10 @@ void string2ip(char* string, char * ip){
     }
 }
 
+bool is_true_printable(char c){
+    return c>0x1F;
+}
+
 void act_on_command(char* org_command, struct whole_config * conf, char * ret){
     char command = what_command(org_command);
     switch(command){
@@ -133,15 +137,24 @@ void act_on_command(char* org_command, struct whole_config * conf, char * ret){
             break;
         }
         case SSID_SET_COMMAND_NO: {
+            char ssid[SSID_SIZE];
+            strcpy(ssid, (org_command+SSID_SET_COMMAND_LEN+1));
+            while(!is_true_printable(ssid[strlen(ssid)-1])){
+                ssid[strlen(ssid)-1]=0;
+            }
             memset(&(conf->ssid[0]),0,sizeof(conf->ssid));
-            strncpy(&(conf->ssid[0]), (org_command+SSID_SET_COMMAND_LEN+1),strlen((org_command+SSID_SET_COMMAND_LEN+1))-1);
+            strcpy(&(conf->ssid[0]), ssid);
             sprintf(ret, "SSID set to: %s\n",conf->ssid);
             break;
         }
         case PASS_SET_COMMAND_NO: {
+            char pass[PASS_SIZE];
+            strcpy(pass, (org_command+PASS_SET_COMMAND_LEN+1));
+            while(!is_true_printable(pass[strlen(pass)-1])){
+                pass[strlen(pass)-1]=0;
+            }
             memset(&(conf->pass[0]),0,sizeof(conf->pass));
-
-            strncpy(&(conf->pass[0]), (org_command+PASS_SET_COMMAND_LEN+1),strlen((org_command+PASS_SET_COMMAND_LEN+1))-1);
+            strcpy(&(conf->pass[0]), pass);
             sprintf(ret, "Password set to: %s\n",conf->pass);
             break;
         }
@@ -189,7 +202,7 @@ void act_on_command(char* org_command, struct whole_config * conf, char * ret){
         }
 
         default: {
-            strcpy(ret, "cmnds: \nip [ip]\ngw [ip]\nnetmask [ip]\nssid [name]\npass [pass]\nstatic \ndynamic\nsave\nhelp\ndisplay_current\ndisplay_saved\nexit\ndisplay_current\ndisplay_saved\nrestart \n"); 
+            strcpy(ret, HELP_STRING); 
             break;
             }
     }

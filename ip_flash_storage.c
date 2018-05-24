@@ -12,11 +12,34 @@ void set_dhcp_static_flag(char flag){
     }
 }
 
+char set_AP_mode(char mode){
+    struct whole_config conf;
+    char err = get_config_from_flash(&conf);  
+    if(err == ERR_CONF_DOSENT_EXIST){
+        return ERR_CONF_DOSENT_EXIST;
+    }  
+    if(mode == AP_MODE_ON_FLAG || mode == AP_MODE_OFF_FLAG){
+        conf.ap_mode = mode;
+        write_config_to_flash(&conf);
+        return NO_ERROR;
+    }
+    return ERR_AP_MODE;
+    
+}
+
+bool is_AP_mode(){
+    struct whole_config conf;
+    if(get_config_from_flash(&conf) == ERR_CONF_DOSENT_EXIST){
+        return true;
+    }
+    return conf.ap_mode == AP_MODE_ON_FLAG;
+}
+
 bool is_ip_static(){
     struct whole_config conf;
     get_config_from_flash(&conf);
 
-    return conf.dhcp_static;
+    return STATIC_IP_FLAG == conf.dhcp_static;
 }
 
 void update_ip_config(struct whole_config * conf_ip){
@@ -60,7 +83,7 @@ char get_config_from_flash(struct whole_config * conf){
     counter+=SSID_SIZE;
 
     strncpy(&(conf->pass[0]), (buff+counter),PASS_SIZE);
-    counter+=SSID_SIZE;
+    counter+=PASS_SIZE;
 
     memcpy(&(conf->dhcp_static), (buff+counter),DHCP_STATIC_SIZE);
     counter+=DHCP_STATIC_SIZE;
@@ -97,7 +120,7 @@ void write_config_to_flash(struct whole_config * conf){
     counter+=SSID_SIZE;
 
     strncpy((buff+counter),&(conf->pass[0]),PASS_SIZE);
-    counter+=SSID_SIZE;
+    counter+=PASS_SIZE;
 
     strncpy((buff+counter),&(conf->dhcp_static),DHCP_STATIC_SIZE);
     counter+=DHCP_STATIC_SIZE;

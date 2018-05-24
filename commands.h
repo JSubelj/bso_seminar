@@ -57,6 +57,8 @@
 #define RESTART_COMMAND_NO 13
 #define RESTART_COMMAND_LEN 7
 
+#define HELP_STRING "cmnds: \nip [ip]\ngw [ip]\nnetmask [ip]\nssid [name]\npass [pass]\nstatic \ndynamic\nsave\nhelp\ndisplay_current\ndisplay_saved\nexit\nrestart \n"
+
 #define COMMAND_MAX_STRING_LEN  SSID_SET_COMMAND_LEN+SSID_SIZE
 
 

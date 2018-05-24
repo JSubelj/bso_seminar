@@ -1,11 +1,11 @@
-#ifndef __INPUT_OUTPUT_H__
-#define __INPUT_OUTPUT_H__
+#ifndef __BUTTONS_H__
+#define __BUTTONS_H__
 
 #include "i2c.h"
 #include <task.h>
 #include "utils.h"
-
-#define LED_PIN 2
+#include "leds.h"
+#include "ip_flash_storage.h"
 
 #define PCF_ADDRESS 0x38
 
@@ -18,14 +18,16 @@
 #define BUTTON2_ID 2
 #define BUTTON3_ID 3
 #define BUTTON4_ID 4
- 
 
-#define LED1	0xfe
-#define LED2	0xfd
-#define LED3	0xfb
-#define LED4	0xf7
 
 extern void task_read_buttons(void *pvParameters);
+
+extern void button1_task(void *pvParameters);
+extern void button2_task(void *pvParameters);
+extern void button3_task(void *pvParameters);
+extern void button4_task(void *pvParameters);
+
+
 
 
 #endif
