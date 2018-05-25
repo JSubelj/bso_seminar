@@ -1,26 +1,56 @@
 #include "http_server.h"
 
 enum{
-    SSI_UPTIME,
-    SSI_FREE_HEAP,
-    SSI_LED_STATE
+    SSI_IP_ADDR,
+    SSI_NETMASK,
+    SSI_GW,
+    SSI_AP_OR_CLIENT,
+    SSI_SSID,
+    SSI_PASS,
+    SSI_DYNAMIC_STATIC
 };
 
 int32_t ssi_handler(int32_t iIndex, char *pcInsert, int32_t iInsertLen)
 {
     switch (iIndex) {
-        case SSI_UPTIME:{
-            char ip[4];
+        case SSI_IP_ADDR:{
+            uint8_t ip[4];
             get_ip(ip);
             snprintf(pcInsert, iInsertLen, "%d.%d.%d.%d", ip[0],ip[1],ip[2],ip[3]);
             break;
         }
-        case SSI_FREE_HEAP:
-            snprintf(pcInsert, iInsertLen, "%d", (int) xPortGetFreeHeapSize());
+        case SSI_NETMASK:{
+            uint8_t netmask[4];
+            get_netmask(netmask);
+            snprintf(pcInsert, iInsertLen, "%d.%d.%d.%d", netmask[0],netmask[1],netmask[2],netmask[3]);
             break;
-        case SSI_LED_STATE:
-            snprintf(pcInsert, iInsertLen, "On");
+        }
+        case SSI_GW:{
+            uint8_t gw[4];
+            get_gw(gw);
+            snprintf(pcInsert, iInsertLen, "%d.%d.%d.%d", gw[0],gw[1],gw[2],gw[3]);
             break;
+        }
+        case SSI_AP_OR_CLIENT:{
+            snprintf(pcInsert, iInsertLen, "%s", is_AP_mode() ? "Access point" : "Client");
+            break;
+        }
+        case SSI_SSID:{
+            char ssid[SSID_SIZE];
+            get_ssid(ssid);
+            snprintf(pcInsert, iInsertLen, "%s", ssid);
+            break;
+        }
+        case SSI_PASS:{
+            char pass[PASS_SIZE];
+            get_pass(pass);
+            snprintf(pcInsert, iInsertLen, "%s", pass);
+            break;
+        }
+        case SSI_DYNAMIC_STATIC:{
+            snprintf(pcInsert, iInsertLen, "%s", is_ip_static() ? "static" : "dynamic");
+            break;
+        }
         default:
             snprintf(pcInsert, iInsertLen, "N/A");
             break;
@@ -30,85 +60,21 @@ int32_t ssi_handler(int32_t iIndex, char *pcInsert, int32_t iInsertLen)
     return (strlen(pcInsert));
 }
 
-char *gpio_cgi_handler(int iIndex, int iNumParams, char *pcParam[], char *pcValue[])
-{
-    for (int i = 0; i < iNumParams; i++) {
-        if (strcmp(pcParam[i], "on") == 0) {
-            /*uint8_t gpio_num = atoi(pcValue[i]);
-            gpio_enable(gpio_num, GPIO_OUTPUT);
-            gpio_write(gpio_num, true);*/
-        } else if (strcmp(pcParam[i], "off") == 0) {
-            /*uint8_t gpio_num = atoi(pcValue[i]);
-            gpio_enable(gpio_num, GPIO_OUTPUT);
-            gpio_write(gpio_num, false);*/
-        } else if (strcmp(pcParam[i], "toggle") == 0) {
-            /*uint8_t gpio_num = atoi(pcValue[i]);
-            gpio_enable(gpio_num, GPIO_OUTPUT);
-            gpio_toggle(gpio_num);*/
-        }
-    }
-    return "/index.ssi";
-}
-
-char *about_cgi_handler(int iIndex, int iNumParams, char *pcParam[], char *pcValue[])
-{
-    return "/about.html";
-}
-
-
-
-
 void httpd_task(void *pvParameters)
 {
-    tCGI pCGIs[] = {
-        {"/gpio", (tCGIHandler) gpio_cgi_handler},
-        {"/about", (tCGIHandler) about_cgi_handler},
-    };
-
     const char *pcConfigSSITags[] = {
-        "uptime", // SSI_UPTIME
-        "heap",   // SSI_FREE_HEAP
-        "led"     // SSI_LED_STATE
+        "ip_addr", // SSI_UPTIME
+        "netmask",
+        "gw",
+        "AP",
+        "ssid",
+        "pass",
+        "stat_dyn",
     };
 
-    /* register handlers and start the server */
-    //http_set_cgi_handlers(pCGIs, sizeof (pCGIs) / sizeof (pCGIs[0]));
     http_set_ssi_handler((tSSIHandler) ssi_handler, pcConfigSSITags,
             sizeof (pcConfigSSITags) / sizeof (pcConfigSSITags[0]));
     httpd_init();
 
-    for (;;);
-}
-/*
-
-void httpd_task(void *pvParameters){
-    const char *pcConfigSSITags[] = {
-        "ip_address", //IP_address
-    };
-
-    http_set_ssi_handler((tSSIHandler) ssi_handler, pcConfigSSITags,
-            sizeof (pcConfigSSITags) / sizeof (pcConfigSSITags[0]));
-
-    httpd_init();
     while(1);
 }
-
-int32_t ssi_handler(int32_t iIndex, char *pcInsert, int32_t iInsertLen)
-{
-    printf("TUKI!");
-    switch (iIndex) {
-        case IP_ADDR_SSI:{
-            char ip[4];
-            get_ip(ip);
-            printf("%d.%d.%d.%d",ip[0], ip[1], ip[2], ip[3]);
-            snprintf(pcInsert, iInsertLen, "%d.%d.%d.%d",ip[0], ip[1], ip[2], ip[3]);
-            break;
-        }
-        default:
-            snprintf(pcInsert, iInsertLen, "N/A");
-            break;
-    }
-
-    return (strlen(pcInsert));
-}
-*/

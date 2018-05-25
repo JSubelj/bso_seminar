@@ -100,33 +100,76 @@ void soft_ap_config(){
     dhcpserver_start(&first_client_ip, 4);
 }
 
-void ip_from_uint32(uint32_t ip, char * ret_ip){
-    *ret_ip = (ip >> 3*8);
-    *(ret_ip+1) = (ip >> 2*8) & 0xf;
-    *(ret_ip+2) = (ip >> 8) & 0xf;
-    *(ret_ip+3) = ip & 0xf;
+void ip_from_uint32(uint32_t ip, uint8_t * ret_ip){
+    *(ret_ip+3) = (ip >> 3*8);
+    *(ret_ip+2) = (ip >> 2*8) & 0xff;
+    *(ret_ip+1) = (ip >> 8) & 0xff;
+    *(ret_ip) = ip & 0xff;
 }
 
-void get_ip(char * ret_ip){
+void get_ip(uint8_t * ret_ip){
     if(sdk_wifi_get_opmode() == 0x02){   
         // ZA AP
         memcpy(ret_ip, AP_IP,IP_SIZE);
         return;
     }
 
-    if(sdk_wifi_station_dhcpc_status() == DHCP_STOPPED){
-        struct whole_config config;
-        get_config_from_flash(&config);
-        memcpy(ret_ip, &config.ip[0], IP_SIZE);
-        return;
+    struct ip_info ip_config;    
+    sdk_wifi_get_ip_info(STATION_IF,&ip_config);
+    ip_from_uint32(ip_config.ip.addr, ret_ip);
+    return;
+}
 
-    }else{
-        struct ip_info ip_config;    
-        sdk_wifi_get_ip_info(STATION_IF,&ip_config);
-        ip_from_uint32(ip_config.ip.addr, ret_ip);
+void get_netmask(uint8_t * ret_netmask){
+    if(sdk_wifi_get_opmode() == 0x02){   
+        // ZA AP
+        memcpy(ret_netmask, AP_NETMASK,IP_SIZE);
         return;
     }
-    
+
+    struct ip_info ip_config;    
+    sdk_wifi_get_ip_info(STATION_IF,&ip_config);  
+    ip_from_uint32(ip_config.netmask.addr, ret_netmask);
+    return;
+}
+
+void get_gw(uint8_t * ret_gw){
+    if(sdk_wifi_get_opmode() == 0x02){   
+        // ZA AP
+        memcpy(ret_gw, AP_GW,IP_SIZE);
+        return;
+    }
+
+    struct ip_info ip_config;    
+    sdk_wifi_get_ip_info(STATION_IF,&ip_config);
+    ip_from_uint32(ip_config.gw.addr, ret_gw);
+    return;
+}
+
+void get_ssid(char * ret_ssid){
+    if(sdk_wifi_get_opmode() == 0x02){   
+        // ZA AP
+        strcpy(ret_ssid, AP_SSID);
+        return;
+    }
+
+    struct whole_config config;  
+    get_config_from_flash(&config);
+    strcpy(ret_ssid, &config.ssid[0]);
+    return;
+}
+
+void get_pass(char * ret_pass){
+    if(sdk_wifi_get_opmode() == 0x02){   
+        // ZA AP
+        strcpy(ret_pass, AP_PASS);
+        return;
+    }
+
+    struct whole_config config;  
+    get_config_from_flash(&config);
+    strcpy(ret_pass, &config.pass[0]);
+    return;
 }
 
 void checking_connection(void *pvParameters){

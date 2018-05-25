@@ -39,7 +39,9 @@ bool is_AP_mode(){
 
 bool is_ip_static(){
     struct whole_config conf;
-    get_config_from_flash(&conf);
+    if(get_config_from_flash(&conf) == ERR_CONF_DOSENT_EXIST){
+        return true;
+    };
 
     return STATIC_IP_FLAG == conf.dhcp_static;
 }

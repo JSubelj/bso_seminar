@@ -30,7 +30,11 @@ extern char client_mode();
 extern void client_mode_static();
 extern void client_mode_dynamic();
 extern void checking_connection(void *pvParameters);
-extern void get_ip(char * ret_ip);
+extern void get_ip(uint8_t * ret_ip);
+extern void get_gw(uint8_t * ret_gw);
+extern void get_netmask(uint8_t * ret_netmask);
+extern void get_pass(char * ret_pass);
+extern void get_ssid(char * ret_ssid);
 
 
 #endif
