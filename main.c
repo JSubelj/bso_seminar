@@ -18,7 +18,7 @@ void user_init(void){
 
     //xTaskCreate(&test, "test", 128, NULL, 2, NULL);
 
-    xTaskCreate(checking_connection, "Connection checker", 128, NULL, 2, NULL);    
+    xTaskCreate(checking_connection, "Connection checker", 512, NULL, 2, NULL);    
     xTaskCreate(task_read_buttons, "task_read_buttons", 512, NULL, 2, NULL);
     xTaskCreate(telnet_server, "Telnet Server", 1024, NULL, 2, NULL);
     xTaskCreate(httpd_task, "HTTP Daemon", 128, NULL, 2, NULL);

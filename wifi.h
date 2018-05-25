@@ -10,6 +10,7 @@
 #include "ip_flash_storage.h"
 #include "leds.h"
 
+
 #define AP_SSID "ESP_BSO_WIFI"
 #define AP_PASS "testtest1"
 
@@ -29,6 +30,7 @@ extern char client_mode();
 extern void client_mode_static();
 extern void client_mode_dynamic();
 extern void checking_connection(void *pvParameters);
+extern void get_ip(char * ret_ip);
 
 
 #endif

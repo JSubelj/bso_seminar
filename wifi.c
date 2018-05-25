@@ -1,5 +1,9 @@
 #include "wifi.h"
 
+char const AP_IP[] = {172, 16, 0, 1};
+char const AP_NETMASK[] = {255, 255, 255, 0};
+char const AP_GW[] = {0, 0, 0, 0};
+
 char wifi_config(){
     
     if(is_AP_mode()){
@@ -41,7 +45,7 @@ void client_mode_static(){
     
     sdk_wifi_station_dhcpc_stop();
  
-    sdk_wifi_set_ip_info(0, &ipconfig);
+    sdk_wifi_set_ip_info(STATION_IF, &ipconfig);
     struct sdk_station_config config_station;
     memcpy(&config_station.ssid, &config_all.ssid[0], SSID_SIZE); 
     memcpy(&config_station.password, &config_all.pass[0], PASS_SIZE);
@@ -67,11 +71,6 @@ void client_mode_dynamic(){
 }
 
 void soft_ap_config(){
-    char const AP_IP[] = {172, 16, 0, 1};
-    char const AP_NETMASK[] = {255, 255, 255, 0};
-    char const AP_GW[] = {0, 0, 0, 0};
-
-
     sdk_wifi_set_opmode(SOFTAP_MODE);
     
     struct ip_info ap_ip_config;
@@ -101,17 +100,42 @@ void soft_ap_config(){
     dhcpserver_start(&first_client_ip, 4);
 }
 
+void ip_from_uint32(uint32_t ip, char * ret_ip){
+    *ret_ip = (ip >> 3*8);
+    *(ret_ip+1) = (ip >> 2*8) & 0xf;
+    *(ret_ip+2) = (ip >> 8) & 0xf;
+    *(ret_ip+3) = ip & 0xf;
+}
+
+void get_ip(char * ret_ip){
+    if(sdk_wifi_get_opmode() == 0x02){   
+        // ZA AP
+        memcpy(ret_ip, AP_IP,IP_SIZE);
+        return;
+    }
+
+    if(sdk_wifi_station_dhcpc_status() == DHCP_STOPPED){
+        struct whole_config config;
+        get_config_from_flash(&config);
+        memcpy(ret_ip, &config.ip[0], IP_SIZE);
+        return;
+
+    }else{
+        struct ip_info ip_config;    
+        sdk_wifi_get_ip_info(STATION_IF,&ip_config);
+        ip_from_uint32(ip_config.ip.addr, ret_ip);
+        return;
+    }
+    
+}
+
 void checking_connection(void *pvParameters){
-    printf("PRŠU NOT");
-    if(sdk_wifi_get_opmode() == SOFTAP_IF){
-        printf("PRŠU NOT");
-        
+    if(sdk_wifi_get_opmode() == 0x02){  
+        // ZA AP      
         remove_leds(NO_INTERNET);  
         append_leds(AP_ON_LED);  
-        delay_ms(10);
     	vTaskDelete(NULL);    
     }
-    printf("TUKI");
 
 
     uint8_t status = sdk_wifi_station_get_connect_status();
