@@ -63,7 +63,7 @@ int32_t ssi_handler(int32_t iIndex, char *pcInsert, int32_t iInsertLen)
 void httpd_task(void *pvParameters)
 {
     const char *pcConfigSSITags[] = {
-        "ip_addr", // SSI_UPTIME
+        "ip_addr", 
         "netmask",
         "gw",
         "AP",
