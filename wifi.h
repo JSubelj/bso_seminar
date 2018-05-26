@@ -6,7 +6,6 @@
 #include <dhcpserver.h>
 #include <lwip/api.h>
 
-#include "private_ssid_config.h"
 #include "ip_flash_storage.h"
 #include "leds.h"
 

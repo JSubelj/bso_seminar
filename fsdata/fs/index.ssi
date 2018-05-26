@@ -5,12 +5,6 @@
 		<title>BSO config page</title>
 	</head>
 	<body>
-
-
-			<p>Demmo page</p>
-
-
-
 			<h1>Server Status</h1>
 			<table class="table table-striped">
 				<tr>
@@ -43,11 +37,49 @@
 				</tr>
 			</table>
 			<!-- link: https://postimg.cc/gallery/nem17vvs/ -->
-			 <img src="https://s31.postimg.cc/p0gcdfdkb/image.jpg" alt="AP" style="height:600px;">
-			 <img src="https://s31.postimg.cc/xipshuk3v/dynamic.jpg" alt="dynamic" style="height:600px;">
-			 <img src="https://s31.postimg.cc/h7poljn1n/static.jpg" alt="static" style="height:600px;">			 
-			 <img src="https://s31.postimg.cc/p0gcdgg57/no_internet.jpg" alt="no internet" style="height:600px;">
-			 <img src="https://s31.postimg.cc/v1e1akkrv/modes.jpg" alt="modes" style="height:600px;">
+			<table>
+				<tr>
+					<td>
+						Access point mode
+					</td>
+					<td>
+						<img src="https://s31.postimg.cc/p0gcdfdkb/image.jpg" alt="AP" style="height:600px;">
+					</td>
+				</tr>
+				<tr>
+					<td>
+						Dynamic client mode
+					</td>
+					<td>					
+						<img src="https://s31.postimg.cc/xipshuk3v/dynamic.jpg" alt="dynamic" style="height:600px;">
+					</td>
+				</tr>
+				<tr>
+					<td>
+						Static client mode
+					</td>
+					<td>					
+						<img src="https://s31.postimg.cc/h7poljn1n/static.jpg" alt="static" style="height:600px;">			 
+					</td>
+				</tr>
+				<tr>
+					<td>
+						No internet mode
+					</td>
+					<td>
+						<img src="https://s31.postimg.cc/p0gcdgg57/no_internet.jpg" alt="no internet" style="height:600px;">
+					</td>
+				</tr>
+				<tr>
+					<td>
+						Buttons for switching modes
+					</td>
+					<td>
+						<img src="https://s31.postimg.cc/v1e1akkrv/modes.jpg" alt="modes" style="height:600px;">
+					</td>
+				</tr>
+			</table>
+			 
 			 
 			 
 

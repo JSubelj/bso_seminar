@@ -44,9 +44,6 @@ void telnet_connection(void *pvParameters) {
                             netconn_write( pxNetCon, ret_buff, strlen(ret_buff), NETCONN_COPY );
                             sprintf(ret_buff, "> ");
                             netconn_write( pxNetCon, ret_buff, strlen(ret_buff), NETCONN_COPY );
-   
-
-                            //printf("\n%s\n",buff);
                     }
                     netbuf_delete( pxRxBuffer );
             }
